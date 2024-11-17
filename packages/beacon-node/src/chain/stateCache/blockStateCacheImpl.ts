@@ -34,7 +34,7 @@ export class BlockStateCacheImpl implements BlockStateCache {
     this.maxStates = maxStates;
     this.cache = new MapTracker(metrics?.stateCache);
     if (metrics) {
-      this.metrics = {...metrics.stateCache, ...metrics.epochCache};
+      this.metrics = metrics.stateCache;
       metrics.stateCache.size.addCollect(() => metrics.stateCache.size.set(this.cache.size));
     }
   }

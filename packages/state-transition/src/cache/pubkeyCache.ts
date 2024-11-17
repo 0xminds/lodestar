@@ -1,17 +1,8 @@
 import {PublicKey} from "@chainsafe/blst";
 import {PubkeyIndexMap} from "@chainsafe/pubkey-index-map";
 import {ValidatorIndex, phase0} from "@lodestar/types";
-import * as immutable from "immutable";
 
 export type Index2PubkeyCache = PublicKey[];
-/**
- * OrderedMap preserves the order of entries in which they are `set()`.
- * We assume `values()` yields validator indices in strictly increasing order
- * as new validator indices are assigned in increasing order.
- * EIP-6914 will break this assumption.
- */
-export type UnfinalizedPubkeyIndexMap = immutable.Map<PubkeyHex, ValidatorIndex>;
-
 export type PubkeyHex = string;
 
 /**
@@ -31,13 +22,6 @@ export function toMemoryEfficientHexStr(hex: Uint8Array | string): string {
   }
 
   return Buffer.from(hex.buffer, hex.byteOffset, hex.byteLength).toString("hex");
-}
-
-/**
- * A wrapper for calling immutable.js. To abstract the initialization of UnfinalizedPubkeyIndexMap
- */
-export function newUnfinalizedPubkeyIndexMap(): UnfinalizedPubkeyIndexMap {
-  return immutable.Map<PubkeyHex, ValidatorIndex>();
 }
 
 /**

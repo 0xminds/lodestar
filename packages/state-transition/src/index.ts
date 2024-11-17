@@ -47,8 +47,6 @@ export {type EpochTransitionCache, beforeProcessEpoch} from "./cache/epochTransi
 // Aux data-structures
 export {
   type Index2PubkeyCache,
-  type UnfinalizedPubkeyIndexMap,
-  newUnfinalizedPubkeyIndexMap,
 } from "./cache/pubkeyCache.js";
 
 export {
