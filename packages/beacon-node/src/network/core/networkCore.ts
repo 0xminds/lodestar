@@ -143,7 +143,7 @@ export class NetworkCore implements INetworkCore {
 
     const metrics = metricsRegistry ? createNetworkCoreMetrics(metricsRegistry) : null;
     const peersData = new PeersData();
-    const peerRpcScores = new PeerRpcScoreStore(opts, metrics);
+    const peerRpcScores = new PeerRpcScoreStore(opts, metrics, logger);
     const statusCache = new LocalStatusCache(initialStatus);
 
     // Bind discv5's ENR to local metadata

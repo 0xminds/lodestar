@@ -20,7 +20,7 @@ export interface IPeerRpcScoreStore {
 export interface IPeerScore {
   getScore(): number;
   getGossipScore(): number;
-  add(scoreDelta: number): void;
+  add(scoreDelta: number): number;
   update(): number;
   updateGossipsubScore(newScore: number, ignore: boolean): void;
   getStat(): PeerScoreStat;
