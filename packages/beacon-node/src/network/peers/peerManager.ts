@@ -736,6 +736,7 @@ export class PeerManager {
     try {
       const reason = GOODBYE_KNOWN_CODES[goodbye.toString()] || "";
       this.metrics?.peerGoodbyeSent.inc({reason});
+      this.logger.debug("disconnected peer", {reason, peerId: peer.toString()});
 
       const conn = getConnection(this.libp2p, peer.toString());
       if (conn && Date.now() - conn.timeline.open > LONG_PEER_CONNECTION_MS) {
