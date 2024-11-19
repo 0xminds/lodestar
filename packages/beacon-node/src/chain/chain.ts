@@ -1047,7 +1047,6 @@ export class BeaconChain implements IBeaconChain {
     metrics.forkChoice.balancesLength.set(forkChoiceMetrics.balancesLength);
     metrics.forkChoice.nodes.set(forkChoiceMetrics.nodes);
     metrics.forkChoice.indices.set(forkChoiceMetrics.indices);
-
   }
 
   private onClockSlot(slot: Slot): void {

@@ -49,10 +49,7 @@ import {
 import {computeBaseRewardPerIncrement, computeSyncParticipantReward} from "../util/syncCommittee.js";
 import {sumTargetUnslashedBalanceIncrements} from "../util/targetUnslashedBalance.js";
 import {EffectiveBalanceIncrements, getEffectiveBalanceIncrementsWithLen} from "./effectiveBalanceIncrements.js";
-import {
-  Index2PubkeyCache,
-  syncPubkeys,
-} from "./pubkeyCache.js";
+import {Index2PubkeyCache, syncPubkeys} from "./pubkeyCache.js";
 import {CachedBeaconStateAllForks} from "./stateCache.js";
 import {
   SyncCommitteeCache,
@@ -105,22 +102,16 @@ type ProposersDeferred = {computed: false; seed: Uint8Array} | {computed: true; 
 export class EpochCache {
   config: BeaconConfig;
   /**
-   * Unique globally shared finalized pubkey registry. There should only exist one for the entire application.
+   * Unique globally shared pubkey registry. There should only exist one for the entire application.
    *
    * TODO: this is a hack, we need a safety mechanism in case a bad eth1 majority vote is in,
    * or handle non finalized data differently, or use an immutable.js structure for cheap copies
-   *
-   * New: This would include only validators whose activation_eligibility_epoch != FAR_FUTURE_EPOCH and hence it is
-   * insert only. Validators could be 1) Active 2) In the activation queue 3) Initialized but pending queued
    *
    * $VALIDATOR_COUNT x 192 char String -> Number Map
    */
   pubkey2index: PubkeyIndexMap;
   /**
-   * Unique globally shared finalized pubkey registry. There should only exist one for the entire application.
-   *
-   * New: This would include only validators whose activation_eligibility_epoch != FAR_FUTURE_EPOCH and hence it is
-   * insert only. Validators could be 1) Active 2) In the activation queue 3) Initialized but pending queued
+   * Unique globally shared pubkey registry. There should only exist one for the entire application.
    *
    * $VALIDATOR_COUNT x BLST deserialized pubkey (Jacobian coordinates)
    */
@@ -970,7 +961,7 @@ export class EpochCache {
   }
 
   /**
-   * Return finalized pubkey given the validator index.
+   * Return pubkey given the validator index.
    */
   getPubkey(index: ValidatorIndex): PublicKey | undefined {
     return this.index2pubkey[index];
@@ -1116,7 +1107,6 @@ export class EpochCache {
   isPostElectra(): boolean {
     return this.epoch >= this.config.ELECTRA_FORK_EPOCH;
   }
-
 }
 
 function getEffectiveBalanceIncrementsByteLen(validatorCount: number): number {
