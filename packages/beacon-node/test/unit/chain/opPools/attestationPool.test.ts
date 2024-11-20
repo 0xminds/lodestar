@@ -1,7 +1,7 @@
 import {BitArray, fromHexString, toHexString} from "@chainsafe/ssz";
 import {createChainForkConfig, defaultChainConfig} from "@lodestar/config";
 import {GENESIS_SLOT, MAX_COMMITTEES_PER_SLOT, SLOTS_PER_EPOCH} from "@lodestar/params";
-import {ssz, phase0, electra} from "@lodestar/types";
+import {electra, phase0, ssz} from "@lodestar/types";
 import {beforeEach, describe, expect, it, vi} from "vitest";
 import {AttestationPool} from "../../../../src/chain/opPools/attestationPool.js";
 import {InsertOutcome} from "../../../../src/chain/opPools/types.js";
