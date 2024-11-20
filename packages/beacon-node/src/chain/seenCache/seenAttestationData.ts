@@ -11,9 +11,6 @@ type AttDataBase64 = string;
 export type AttestationDataCacheEntry = {
   // part of shuffling data, so this does not take memory
   committeeValidatorIndices: Uint32Array;
-  // undefined for phase0 Attestation
-  // TODO: remove this as it's not in SingleAttestation
-  // committeeBits?: BitArray;
   // TODO: remove this? this is available in SingleAttestation
   committeeIndex: CommitteeIndex;
   // IndexedAttestationData signing root, 32 bytes
