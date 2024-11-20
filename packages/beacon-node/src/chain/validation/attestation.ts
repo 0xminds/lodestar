@@ -292,7 +292,7 @@ async function validateAttestationNoSignatureCheck(
       // api or first time validation of a gossip attestation
       committeeIndex = attestationOrCache.attestation.committeeIndex;
 
-      // [REJECT] aggregate.data.index == 0
+      // [REJECT] attestation.data.index == 0
       if (attData.index !== 0) {
         throw new AttestationError(GossipAction.REJECT, {code: AttestationErrorCode.NON_ZERO_ATTESTATION_DATA_INDEX});
       }
