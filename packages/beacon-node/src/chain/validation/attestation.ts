@@ -260,7 +260,7 @@ async function validateAttestationNoSignatureCheck(
   if (attestationOrBytes.serializedData) {
     // gossip
     const attSlot = attestationOrBytes.attSlot;
-    attDataKey = getSeenAttDataKeyFromGossipAttestation(fork, attestationOrBytes);
+    attDataKey = getSeenAttDataKeyFromGossipAttestation(attestationOrBytes);
     const committeeIndexForLookup = isForkPostElectra(fork)
       ? (getCommitteeIndexFromAttestationOrBytes(fork, attestationOrBytes) ?? 0)
       : PRE_ELECTRA_SINGLE_ATTESTATION_COMMITTEE_INDEX;
@@ -808,33 +808,25 @@ export function computeSubnetForSlot(shuffling: EpochShuffling, slot: number, co
  * Return fork-dependent seen attestation key
  *   - for pre-electra, it's the AttestationData base64 from Attestation
  *   - for electra and later, it's the AttestationData base64 from SingleAttestation
+ *   - consumers need to also pass slot + committeeIndex to get the correct SeenAttestationData
  */
-export function getSeenAttDataKeyFromGossipAttestation(
-  fork: ForkName,
-  attestation: GossipAttestation
-): SeenAttDataKey | null {
-  const {attDataBase64, serializedData} = attestation;
+export function getSeenAttDataKeyFromGossipAttestation(attestation: GossipAttestation): SeenAttDataKey | null {
   // SeenAttDataKey is the same as gossip index
-  return attDataBase64 ?? getBeaconAttestationGossipIndex(fork, serializedData);
+  return attestation.attDataBase64;
 }
 
 /**
  * Extract attestation data key from SignedAggregateAndProof Uint8Array to use cached data from SeenAttestationDatas
- *   - for pre-electra, it's the AttestationData base64
- *   - for electra and later, it's the AttestationData base64 + committeeBits base64
+ *   - for both electra + pre-electra, it's the AttestationData base64
+ *   - consumers need to also pass slot + committeeIndex to get the correct SeenAttestationData
  */
 export function getSeenAttDataKeyFromSignedAggregateAndProof(
   fork: ForkName,
   aggregateAndProof: Uint8Array
 ): SeenAttDataKey | null {
-  if (isForkPostElectra(fork)) {
-    const attData = getAttDataFromSignedAggregateAndProofElectra(aggregateAndProof);
-    const committeeBits = getCommitteeBitsFromSignedAggregateAndProofElectra(aggregateAndProof);
-    return attData && committeeBits ? attData + committeeBits : null;
-  }
-
-  // pre-electra
-  return getAttDataFromSignedAggregateAndProofPhase0(aggregateAndProof);
+  return isForkPostElectra(fork)
+    ? getAttDataFromSignedAggregateAndProofElectra(aggregateAndProof)
+    : getAttDataFromSignedAggregateAndProofPhase0(aggregateAndProof);
 }
 
 export function getCommitteeIndexFromAttestationOrBytes(
