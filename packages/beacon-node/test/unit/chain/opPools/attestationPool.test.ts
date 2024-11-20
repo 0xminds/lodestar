@@ -1,7 +1,7 @@
-import {fromHexString, toHexString} from "@chainsafe/ssz";
+import {BitArray, fromHexString, toHexString} from "@chainsafe/ssz";
 import {createChainForkConfig, defaultChainConfig} from "@lodestar/config";
-import {GENESIS_SLOT, SLOTS_PER_EPOCH} from "@lodestar/params";
-import {ssz} from "@lodestar/types";
+import {GENESIS_SLOT, MAX_COMMITTEES_PER_SLOT, SLOTS_PER_EPOCH} from "@lodestar/params";
+import {ssz, phase0, electra} from "@lodestar/types";
 import {beforeEach, describe, expect, it, vi} from "vitest";
 import {AttestationPool} from "../../../../src/chain/opPools/attestationPool.js";
 import {InsertOutcome} from "../../../../src/chain/opPools/types.js";
@@ -27,17 +27,26 @@ describe("AttestationPool", () => {
   const cutOffSecFromSlot = (2 / 3) * config.SECONDS_PER_SLOT;
 
   // Mock attestations
-  const electraAttestationData = {
+  const electraAttestationData: phase0.AttestationData = {
     ...ssz.phase0.AttestationData.defaultValue(),
     slot: config.ELECTRA_FORK_EPOCH * SLOTS_PER_EPOCH,
   };
-  const electraAttestation = {
-    ...ssz.electra.Attestation.defaultValue(),
+  const electraSingleAttestation: electra.SingleAttestation = {
+    ...ssz.electra.SingleAttestation.defaultValue(),
     data: electraAttestationData,
     signature: validSignature,
   };
-  const phase0AttestationData = {...ssz.phase0.AttestationData.defaultValue(), slot: GENESIS_SLOT};
-  const phase0Attestation = {
+  const electraAttestation: electra.Attestation = {
+    ...ssz.electra.Attestation.defaultValue(),
+    committeeBits: BitArray.fromSingleBit(MAX_COMMITTEES_PER_SLOT, electraSingleAttestation.committeeIndex),
+    data: electraAttestationData,
+    signature: validSignature,
+  };
+  const phase0AttestationData: phase0.AttestationData = {
+    ...ssz.phase0.AttestationData.defaultValue(),
+    slot: GENESIS_SLOT,
+  };
+  const phase0Attestation: phase0.Attestation = {
     ...ssz.phase0.Attestation.defaultValue(),
     data: phase0AttestationData,
     signature: validSignature,
@@ -52,8 +61,8 @@ describe("AttestationPool", () => {
   it("add correct electra attestation", () => {
     const committeeIndex = 0;
     const aggregationBits = ssz.electra.Attestation.fields.aggregationBits.defaultValue();
-    const attDataRootHex = toHexString(ssz.phase0.AttestationData.hashTreeRoot(electraAttestation.data));
-    const outcome = pool.add(committeeIndex, electraAttestation, attDataRootHex, aggregationBits);
+    const attDataRootHex = toHexString(ssz.phase0.AttestationData.hashTreeRoot(electraSingleAttestation.data));
+    const outcome = pool.add(committeeIndex, electraSingleAttestation, attDataRootHex, aggregationBits);
 
     expect(outcome).equal(InsertOutcome.NewData);
     expect(pool.getAggregate(electraAttestationData.slot, committeeIndex, attDataRootHex)).toEqual(electraAttestation);
@@ -74,9 +83,9 @@ describe("AttestationPool", () => {
   it("add electra attestation without committee index", () => {
     const committeeIndex = null;
     const aggregationBits = ssz.electra.Attestation.fields.aggregationBits.defaultValue();
-    const attDataRootHex = toHexString(ssz.phase0.AttestationData.hashTreeRoot(electraAttestation.data));
+    const attDataRootHex = toHexString(ssz.phase0.AttestationData.hashTreeRoot(electraSingleAttestation.data));
 
-    expect(() => pool.add(committeeIndex, electraAttestation, attDataRootHex, aggregationBits)).toThrow();
+    expect(() => pool.add(committeeIndex, electraSingleAttestation, attDataRootHex, aggregationBits)).toThrow();
     expect(pool.getAggregate(electraAttestationData.slot, committeeIndex, attDataRootHex)).toBeNull();
   });
 
@@ -96,14 +105,14 @@ describe("AttestationPool", () => {
   it("add electra attestation with phase0 slot", () => {
     const electraAttestationDataWithPhase0Slot = {...ssz.phase0.AttestationData.defaultValue(), slot: GENESIS_SLOT};
     const aggregationBits = ssz.electra.Attestation.fields.aggregationBits.defaultValue();
-    const attestation = {
-      ...ssz.electra.Attestation.defaultValue(),
+    const singleAttestation = {
+      ...ssz.electra.SingleAttestation.defaultValue(),
       data: electraAttestationDataWithPhase0Slot,
       signature: validSignature,
     };
     const attDataRootHex = toHexString(ssz.phase0.AttestationData.hashTreeRoot(electraAttestationDataWithPhase0Slot));
 
-    expect(() => pool.add(0, attestation, attDataRootHex, aggregationBits)).toThrow();
+    expect(() => pool.add(0, singleAttestation, attDataRootHex, aggregationBits)).toThrow();
   });
 
   it("add phase0 attestation with electra slot", () => {
