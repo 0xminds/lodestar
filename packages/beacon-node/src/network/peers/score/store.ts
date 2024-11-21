@@ -1,6 +1,7 @@
 import {PeerId} from "@libp2p/interface";
 import {Logger, MapDef, pruneSetToMax} from "@lodestar/utils";
 import {NetworkCoreMetrics} from "../../core/metrics.js";
+import {prettyPrintPeerId} from "../../util.js";
 import {DEFAULT_SCORE, MAX_ENTRIES, MAX_SCORE, MIN_SCORE, SCORE_THRESHOLD} from "./constants.js";
 import {
   IPeerRpcScoreStore,
@@ -60,7 +61,7 @@ export class PeerRpcScoreStore implements IPeerRpcScoreStore {
     const scoreChange = peerActionScore[action];
     const newScore = peerScore.add(scoreChange);
 
-    this.logger?.debug("peer score adjusted", {scoreChange, newScore, peerId: peer.toString(), actionName});
+    this.logger?.debug("peer score adjusted", {scoreChange, newScore, peerId: prettyPrintPeerId(peer), actionName});
     this.metrics?.peersReportPeerCount.inc({reason: actionName});
   }
 
